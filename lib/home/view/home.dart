@@ -241,16 +241,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                   trailing: Icon(Icons.chevron_right,
                       color: Theme.of(context).highlightColor),
-                  onTap: () async {
-                    await Navigator.of(context).push(OnboardingFlow.route());
-                    ScaffoldMessenger.of(context)
-                      ..hideCurrentSnackBar()
-                      ..showSnackBar(
-                        const SnackBar(
-                          content: Text('Onboarding Flow Complete!'),
-                        ),
-                      );
-                  },
+                  onTap: null,
                 ),
                 ListTile(
                   leading: Icon(Icons.alarm,
@@ -266,16 +257,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                   trailing: Icon(Icons.chevron_right,
                       color: Theme.of(context).highlightColor),
-                  onTap: () async {
-                    await Navigator.of(context).push(OnboardingFlow.route());
-                    ScaffoldMessenger.of(context)
-                      ..hideCurrentSnackBar()
-                      ..showSnackBar(
-                        const SnackBar(
-                          content: Text('Onboarding Flow Complete!'),
-                        ),
-                      );
-                  },
+                  onTap: null,
                 ),
               ],
             ),

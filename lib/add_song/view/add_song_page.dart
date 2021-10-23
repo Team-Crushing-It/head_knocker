@@ -19,7 +19,7 @@ class AddSong extends StatelessWidget {
             _createDialog(context),
           );
 
-          if (output.toString() == 'cancelled') {
+          if (output.toString() == 'cancelled' || output == null) {
             // print('cancelled');
           } else {
             await cubit.addSong();
@@ -127,15 +127,20 @@ class _AddSongView extends StatelessWidget {
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: list!.length - 1,
                 itemBuilder: (context, index) {
-                  return Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 24),
-                    child: Text(
-                      list![index].title,
-                      style: Theme.of(context)
-                          .textTheme
-                          .headline1!
-                          .copyWith(fontSize: 16),
+                  return InkWell(
+                    onLongPress: () {
+                      context.read<AddSongCubit>().addSong2(list![index].url);
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 24),
+                      child: Text(
+                        list![index].title,
+                        style: Theme.of(context)
+                            .textTheme
+                            .headline1!
+                            .copyWith(fontSize: 16),
+                      ),
                     ),
                   );
                 },
