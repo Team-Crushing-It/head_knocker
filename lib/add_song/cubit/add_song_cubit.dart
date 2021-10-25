@@ -93,7 +93,7 @@ class AddSongCubit extends Cubit<AddSongState> {
       throw Exception('Failed to load album');
     }
 
-    final output = Song(title: title, url: state.link!.value);
+    final output = Song(title: title, url: url);
 
     await _repository.addDocument(_id, output.toEntity().toJson());
 
