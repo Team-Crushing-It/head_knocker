@@ -41,6 +41,10 @@ class AddSongCubit extends Cubit<AddSongState> {
     }
   }
 
+  Future<void> updateLink() async {
+    emit(state);
+  }
+
   Future<void> addSong() async {
     Map<String, dynamic> jsonTitle;
     String title;
@@ -60,7 +64,36 @@ class AddSongCubit extends Cubit<AddSongState> {
       throw Exception('Failed to load album');
     }
 
-    final output = Song(title: title, url: state.link.toString());
+    final output = Song(title: title, url: state.link!.value);
+
+    await _repository.addDocument(_id, output.toEntity().toJson());
+
+    if (state.cStatus == CollectionStatus.firstTime) {
+      emit(const AddSongState.collectionExists());
+      await checkId();
+    }
+  }
+
+  Future<void> addSong2(String url) async {
+    Map<String, dynamic> jsonTitle;
+    String title;
+
+    final response = await http.get(
+        Uri.parse('https://www.youtube.com/oembed?url=${url}&format=json'));
+
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON.
+      jsonTitle = jsonDecode(response.body) as Map<String, dynamic>;
+
+      title = jsonTitle['title'].toString();
+    } else {
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      throw Exception('Failed to load album');
+    }
+
+    final output = Song(title: title, url: state.link!.value);
 
     await _repository.addDocument(_id, output.toEntity().toJson());
 
