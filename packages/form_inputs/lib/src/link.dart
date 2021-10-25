@@ -8,7 +8,7 @@ class Link extends FormzInput<String, LinkValidationError> {
 
   @override
   LinkValidationError? validator(String? value) {
-    return Uri.tryParse(value ?? '') == null
+    return Uri.tryParse(value!)?.hasAbsolutePath == false
         ? LinkValidationError.invalid
         : null;
   }

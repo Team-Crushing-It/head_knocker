@@ -111,6 +111,14 @@ class AddSongCubit extends Cubit<AddSongState> {
     ));
   }
 
+  void linkReset() {
+    const link = Link.pure();
+    emit(state.copyWith(
+      link: link,
+      status: FormzStatus.pure,
+    ));
+  }
+
   @override
   Future<void> close() {
     _firestoreSubscription.cancel();

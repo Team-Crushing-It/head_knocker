@@ -20,7 +20,8 @@ class AddSong extends StatelessWidget {
           );
 
           if (output.toString() == 'cancelled' || output == null) {
-            // print('cancelled');
+            // reset link state
+            context.read<AddSongCubit>().linkReset();
           } else {
             await cubit.addSong();
           }
@@ -267,7 +268,7 @@ class _AddSongButton extends StatelessWidget {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(4),
                   ),
-                  primary: Colors.grey,
+                  primary: Colors.blueGrey,
                 ),
                 onPressed: state.status!.isValidated
                     ? () => {Navigator.pop(context, 'test')}
