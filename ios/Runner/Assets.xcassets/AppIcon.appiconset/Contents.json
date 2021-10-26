@@ -1,13 +1,13 @@
 {
   "images" : [
     {
-      "filename" : "202x.png",
+      "filename" : "Frame 41@2x-7.png",
       "idiom" : "iphone",
       "scale" : "2x",
       "size" : "20x20"
     },
     {
-      "filename" : "203x.png",
+      "filename" : "Frame 41@3x-3.png",
       "idiom" : "iphone",
       "scale" : "3x",
       "size" : "20x20"
@@ -61,7 +61,7 @@
       "size" : "20x20"
     },
     {
-      "filename" : "202x-1.png",
+      "filename" : "Frame 41@2x-6.png",
       "idiom" : "ipad",
       "scale" : "2x",
       "size" : "20x20"
