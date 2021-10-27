@@ -30,7 +30,7 @@ class AddSong extends StatelessWidget {
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        leadingWidth: 100,
+        leadingWidth: double.infinity,
         leading: InkWell(
           onTap: () => Navigator.of(context).pop(),
           child: Row(
