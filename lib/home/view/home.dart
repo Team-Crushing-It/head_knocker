@@ -82,54 +82,13 @@ class _HomePageState extends State<HomePage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // Connected BUtton =======================
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      primary: Colors.grey[500],
-                      elevation: 3,
-                      shape: const StadiumBorder(),
-                      padding: const EdgeInsets.all(15),
-                    ),
-                    onPressed: null,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Connected',
-                          style: Theme.of(context)
-                              .textTheme
-                              .headline1!
-                              .copyWith(fontSize: 16),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8),
-                          child: Container(
-                            width: 10,
-                            height: 10,
-                            decoration: const BoxDecoration(
-                              color: Colors.green,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                        )
-                      ],
-                    ),
+                  Image.asset('assets/metal.png'),
+                  Image.asset(
+                    'assets/logo.png',
+                    fit: BoxFit.fill,
                   ),
-                  Text(
-                    'Lexus ES',
-                    style: Theme.of(context)
-                        .textTheme
-                        .headline1!
-                        .copyWith(fontSize: 16),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 24),
-                    child: Image.asset(
-                      'assets/lexus.png',
-                      fit: BoxFit.fill,
-                    ),
-                  ),
+
+                  // button toggles
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
