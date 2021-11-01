@@ -7,6 +7,7 @@ import 'package:form_inputs/form_inputs.dart';
 import 'package:formz/formz.dart';
 import 'package:http/http.dart' as http;
 import 'package:songs_repository/songs_repository.dart';
+import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 part 'add_song_state.dart';
 
@@ -64,7 +65,21 @@ class AddSongCubit extends Cubit<AddSongState> {
       throw Exception('Failed to load album');
     }
 
-    final output = Song(title: title, url: state.link!.value);
+    final split = state.link!.value.split('');
+
+    split.removeRange(0, 32);
+
+    print(split);
+    // scrape out the audio stream
+    final yt = YoutubeExplode();
+
+    final manifest = await yt.videos.streamsClient.getManifest(split.join());
+
+    final audio = manifest.audioOnly.last;
+
+    print(audio.url.toString());
+
+    final output = Song(title: title, url: audio.url.toString());
 
     await _repository.addDocument(_id, output.toEntity().toJson());
 
@@ -93,7 +108,7 @@ class AddSongCubit extends Cubit<AddSongState> {
       throw Exception('Failed to load album');
     }
 
-    final output = Song(title: title, url: state.link!.value);
+    final output = Song(title: title, url: url);
 
     await _repository.addDocument(_id, output.toEntity().toJson());
 

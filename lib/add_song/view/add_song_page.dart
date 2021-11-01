@@ -32,6 +32,8 @@ class _AddSongState extends State<AddSong> {
             context.read<AddSongCubit>().linkReset();
           } else {
             await cubit.addSong();
+
+            setState(() {});
           }
         },
       ),
@@ -84,6 +86,7 @@ class _AddSongViewState extends State<_AddSongView>
   void initState() {
     super.initState();
     WidgetsBinding.instance?.addObserver(this);
+    print(Uri.parse(context.read<AddSongCubit>().state.songs!.last.url));
 
     _init();
   }
@@ -92,7 +95,7 @@ class _AddSongViewState extends State<_AddSongView>
     // Inform the operating system of our app's audio attributes etc.
     // We pick a reasonable default for an app that plays speech.
     final session = await AudioSession.instance;
-    await session.configure(AudioSessionConfiguration.speech());
+    await session.configure(AudioSessionConfiguration.music());
     // Listen to errors during playback.
     _player.playbackEventStream.listen((event) {},
         onError: (Object e, StackTrace stackTrace) {
@@ -100,8 +103,11 @@ class _AddSongViewState extends State<_AddSongView>
     });
     // Try to load audio from a source and catch any errors.
     try {
-      await _player.setAudioSource(AudioSource.uri(Uri.parse(
-          "https://s3.amazonaws.com/scifri-episodes/scifri20181123-episode.mp3")));
+      await _player.setAudioSource(
+        AudioSource.uri(Uri.parse(
+            context.read<AddSongCubit>().state.songs!.last.url.toString())),
+        preload: false,
+      );
     } catch (e) {
       print("Error loading audio source: $e");
     }
@@ -163,14 +169,17 @@ class _AddSongViewState extends State<_AddSongView>
                             .copyWith(fontSize: 16),
                       )
                     : Row(
+                        mainAxisSize: MainAxisSize.max,
                         children: [
                           AudioControlButtons(_player),
-                          Text(
-                            widget.list!.last.title,
-                            style: Theme.of(context)
-                                .textTheme
-                                .headline1!
-                                .copyWith(fontSize: 16),
+                          Expanded(
+                            child: Text(
+                              widget.list!.last.title,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headline1!
+                                  .copyWith(fontSize: 16),
+                            ),
                           )
                         ],
                       )),
@@ -388,12 +397,14 @@ class AudioControlButtons extends StatelessWidget {
               );
             } else if (playing != true) {
               return IconButton(
+                color: Colors.white,
                 icon: Icon(Icons.play_arrow),
                 iconSize: 64.0,
                 onPressed: player.play,
               );
             } else if (processingState != ProcessingState.completed) {
               return IconButton(
+                color: Colors.white,
                 icon: Icon(Icons.pause),
                 iconSize: 64.0,
                 onPressed: player.pause,
