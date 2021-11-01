@@ -4,9 +4,17 @@ import 'package:formz/formz.dart';
 import 'package:head_knocker/add_song/add_song.dart';
 import 'package:songs_repository/songs_repository.dart';
 
-class AddSong extends StatelessWidget {
+import 'package:audio_session/audio_session.dart';
+import 'package:just_audio/just_audio.dart';
+
+class AddSong extends StatefulWidget {
   const AddSong({Key? key}) : super(key: key);
 
+  @override
+  State<AddSong> createState() => _AddSongState();
+}
+
+class _AddSongState extends State<AddSong> {
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<AddSongCubit>();
@@ -59,10 +67,64 @@ class AddSong extends StatelessWidget {
   }
 }
 
-class _AddSongView extends StatelessWidget {
+class _AddSongView extends StatefulWidget {
   const _AddSongView({Key? key, required this.list}) : super(key: key);
 
   final List<Song>? list;
+
+  @override
+  State<_AddSongView> createState() => _AddSongViewState();
+}
+
+class _AddSongViewState extends State<_AddSongView>
+    with WidgetsBindingObserver {
+  final _player = AudioPlayer();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance?.addObserver(this);
+
+    _init();
+  }
+
+  Future<void> _init() async {
+    // Inform the operating system of our app's audio attributes etc.
+    // We pick a reasonable default for an app that plays speech.
+    final session = await AudioSession.instance;
+    await session.configure(AudioSessionConfiguration.speech());
+    // Listen to errors during playback.
+    _player.playbackEventStream.listen((event) {},
+        onError: (Object e, StackTrace stackTrace) {
+      print('A stream error occurred: $e');
+    });
+    // Try to load audio from a source and catch any errors.
+    try {
+      await _player.setAudioSource(AudioSource.uri(Uri.parse(
+          "https://s3.amazonaws.com/scifri-episodes/scifri20181123-episode.mp3")));
+    } catch (e) {
+      print("Error loading audio source: $e");
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance?.removeObserver(this);
+    // Release decoders and buffers back to the operating system making them
+    // available for other apps to use.
+    _player.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) {
+      // Release the player's resources when not in use. We use "stop" so that
+      // if the app resumes later, it will still remember what position to
+      // resume from.
+      _player.stop();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -91,15 +153,27 @@ class _AddSongView extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(8),
-              child: Text(
-                list!.last.title,
-                style: Theme.of(context)
-                    .textTheme
-                    .headline1!
-                    .copyWith(fontSize: 16),
-              ),
-            ),
+                padding: const EdgeInsets.all(8),
+                child: widget.list!.last.title == 'No Alarm Set'
+                    ? Text(
+                        widget.list!.last.title,
+                        style: Theme.of(context)
+                            .textTheme
+                            .headline1!
+                            .copyWith(fontSize: 16),
+                      )
+                    : Row(
+                        children: [
+                          AudioControlButtons(_player),
+                          Text(
+                            widget.list!.last.title,
+                            style: Theme.of(context)
+                                .textTheme
+                                .headline1!
+                                .copyWith(fontSize: 16),
+                          )
+                        ],
+                      )),
             Padding(
               padding: const EdgeInsets.only(top: 32),
               child: Text(
@@ -110,7 +184,7 @@ class _AddSongView extends StatelessWidget {
                     .copyWith(fontSize: 24),
               ),
             ),
-            if (list!.length == 1)
+            if (widget.list!.length == 1)
               Padding(
                 padding: const EdgeInsets.all(8),
                 child: Text(
@@ -126,17 +200,19 @@ class _AddSongView extends StatelessWidget {
                 reverse: true,
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: list!.length - 1,
+                itemCount: widget.list!.length - 1,
                 itemBuilder: (context, index) {
                   return InkWell(
                     onLongPress: () {
-                      context.read<AddSongCubit>().addSong2(list![index].url);
+                      context
+                          .read<AddSongCubit>()
+                          .addSong2(widget.list![index].url);
                     },
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 24),
                       child: Text(
-                        list![index].title,
+                        widget.list![index].title,
                         style: Theme.of(context)
                             .textTheme
                             .headline1!
@@ -277,6 +353,61 @@ class _AddSongButton extends StatelessWidget {
                     const Text('Upload', style: TextStyle(color: Colors.black)),
               );
       },
+    );
+  }
+}
+
+/// Displays the play/pause button and volume/speed sliders.
+class AudioControlButtons extends StatelessWidget {
+  final AudioPlayer player;
+
+  const AudioControlButtons(this.player, {Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        /// This StreamBuilder rebuilds whenever the player state changes, which
+        /// includes the playing/paused state and also the
+        /// loading/buffering/ready state. Depending on the state we show the
+        /// appropriate button or loading indicator.
+        StreamBuilder<PlayerState>(
+          stream: player.playerStateStream,
+          builder: (context, snapshot) {
+            final playerState = snapshot.data;
+            final processingState = playerState?.processingState;
+            final playing = playerState?.playing;
+            if (processingState == ProcessingState.loading ||
+                processingState == ProcessingState.buffering) {
+              return Container(
+                margin: EdgeInsets.all(8.0),
+                width: 64.0,
+                height: 64.0,
+                child: CircularProgressIndicator(),
+              );
+            } else if (playing != true) {
+              return IconButton(
+                icon: Icon(Icons.play_arrow),
+                iconSize: 64.0,
+                onPressed: player.play,
+              );
+            } else if (processingState != ProcessingState.completed) {
+              return IconButton(
+                icon: Icon(Icons.pause),
+                iconSize: 64.0,
+                onPressed: player.pause,
+              );
+            } else {
+              return IconButton(
+                icon: Icon(Icons.replay),
+                iconSize: 64.0,
+                onPressed: () => player.seek(Duration.zero),
+              );
+            }
+          },
+        ),
+      ],
     );
   }
 }

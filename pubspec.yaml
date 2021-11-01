@@ -27,6 +27,8 @@ dependencies:
   formz: ^0.4.0
   very_good_analysis: ^2.0.0
   http: ^0.13.4
+  just_audio: ^0.9.15
+  audio_session: ^0.1.5
 
 
   # The following adds the Cupertino Icons font to your application.
