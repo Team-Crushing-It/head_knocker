@@ -30,22 +30,19 @@ class AddSong extends StatelessWidget {
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        leadingWidth: double.infinity,
+        leadingWidth: 1000,
         leading: InkWell(
           onTap: () => Navigator.of(context).pop(),
           child: Row(
+            mainAxisSize: MainAxisSize.max,
             children: [
-              const Expanded(
-                child: Icon(Icons.arrow_back_ios, color: Colors.white),
-              ),
-              Expanded(
-                child: Text(
-                  'Back',
-                  style: Theme.of(context)
-                      .textTheme
-                      .headline1!
-                      .copyWith(fontSize: 16),
-                ),
+              const Icon(Icons.arrow_back_ios, color: Colors.white),
+              Text(
+                'Back',
+                style: Theme.of(context)
+                    .textTheme
+                    .headline1!
+                    .copyWith(fontSize: 16),
               ),
             ],
           ),
